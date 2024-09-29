@@ -1,17 +1,16 @@
 import React, { useContext, useEffect, useState } from "react";
-import { ShopContext } from "../context/ShopContext"; // Ensure you are importing ShopContext correctly
+import { ShopContext } from "../context/ShopContext";
 import { assets } from "../assets/assets";
 import Title from "../components/Title";
 import ProductItem from "../components/ProductItem";
 
 const Collection = () => {
-  // Access the context, with a fallback to an empty object to prevent destructuring errors
-  const { products = [] } = useContext(ShopContext) || {};
+  const { products = [], search } = useContext(ShopContext); // Access search and products
   const [showFilter, setshowFilter] = useState(false);
   const [filterProducts, setfilterProducts] = useState([]);
   const [category, setCategory] = useState([]);
   const [subCategory, setsubCategory] = useState([]);
-  const [sortType, setsortType] = useState("relavent");
+  const [sortType, setsortType] = useState("relevant");
 
   const toggleCategory = (e) => {
     if (category.includes(e.target.value)) {
@@ -32,14 +31,21 @@ const Collection = () => {
   const applyFilter = () => {
     let productsCopy = products.slice();
 
-    // Filter by category if selected
+    // Filter by search term
+    if (search) {
+      productsCopy = productsCopy.filter((item) =>
+        item.name.toLowerCase().includes(search.toLowerCase())
+      );
+    }
+
+    // Filter by category
     if (category.length > 0) {
       productsCopy = productsCopy.filter((item) =>
         category.includes(item.category)
       );
     }
 
-    // Filter by subcategory if selected
+    // Filter by subcategory
     if (subCategory.length > 0) {
       productsCopy = productsCopy.filter((item) =>
         subCategory.includes(item.subCategory)
@@ -69,7 +75,7 @@ const Collection = () => {
 
   useEffect(() => {
     applyFilter();
-  }, [category, subCategory, products]); // Watch for changes in category, subCategory, and products
+  }, [category, subCategory, products, search]); // Track changes in search, category, and products
 
   useEffect(() => {
     sortProduct();
@@ -79,9 +85,8 @@ const Collection = () => {
     setfilterProducts(products);
   }, [products]);
 
-  // Optional: Check if products are loaded or if there's an error
   if (!products.length) {
-    return <div>Loading products...</div>; // Handle loading state or no products found
+    return <div>Loading products...</div>;
   }
 
   return (
@@ -102,7 +107,7 @@ const Collection = () => {
         </p>
         <div
           className={`border border-gray-300 pl-5 py-3 mt-6 ${
-            showFilter ? " " : "hidden"
+            showFilter ? "" : "hidden"
           } sm:block `}
         >
           <p className="mb-3 text-sm font-medium">CATEGORIES</p>
@@ -138,7 +143,7 @@ const Collection = () => {
         </div>
         <div
           className={`border border-gray-300 pl-5 py-3 my-5 ${
-            showFilter ? " " : "hidden"
+            showFilter ? "" : "hidden"
           } sm:block `}
         >
           <p className="mb-3 text-sm font-medium">TYPE</p>

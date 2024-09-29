@@ -1,10 +1,22 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { ShopContext } from "../context/ShopContext"; // Ensure the correct path for context
 import { assets } from "../assets/assets"; // Ensure the correct path for assets
+import { useLocation } from "react-router-dom";
 
 const SearchBar = () => {
   const { search, setSearch, showSearch, setShowSearch } =
     useContext(ShopContext);
+
+  const [visile, setVisible] = useState(false);
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.pathname.includes("collection")) {
+      setVisible(true);
+    } else {
+      setVisible(false);
+    }
+  }, [location]);
 
   const hideSearchBar = () => {
     console.log("Hiding search bar...");
