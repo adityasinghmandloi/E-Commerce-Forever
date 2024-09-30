@@ -31,3 +31,11 @@ a.active hr {
         color: white;
     }
 }
+
+
+.green-circle {
+  width: 0.5rem; /* Smaller size (2 units in Tailwind) */
+  height: 0.5rem; /* Smaller size (2 units in Tailwind) */
+  background-color: #38a169; /* Tailwind's green-500 */
+  border-radius: 50%;
+}
