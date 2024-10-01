@@ -106,26 +106,19 @@ const adminLogin = async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        // Check if the credentials match the admin credentials stored in environment variables
+        // Check admin credentials
         if (email === process.env.ADMIN_EMAIL && password === process.env.ADMIN_PASSWORD) {
-            // Sign a JWT token using the admin email (or any other payload)
+            // Generate JWT token
             const token = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-            // Return success with the token
-            return res.json({
-                success: true,
-                message: "Login successful",
-                token
-            });
+            res.json({ success: true, message: "Login successful", token });
+        } else {
+            res.status(401).json({ success: false, message: "Invalid Credentials" });
         }
-
-        // If credentials don't match, return an invalid credentials message
-        res.json({ success: false, message: "Invalid Credentials" });
     } catch (error) {
-        console.log(error);
+        console.error(error);
         res.status(500).json({ success: false, message: error.message });
     }
 };
-
 
 export {addProduct, listProduct, removeProduct, singleProduct, adminLogin}
