@@ -1,5 +1,7 @@
 import { v2 as cloudinary } from "cloudinary";
 import productModel from "../models/productModel.js";
+import jwt from 'jsonwebtoken';
+
 
 const addProduct = async (req, res) => {
     try {
@@ -51,18 +53,79 @@ const addProduct = async (req, res) => {
 
 
 const listProduct = async (req, res) =>{
+    try{
+        const products=await productModel.find({})
+        res.json({success:true, products})
+    }
+    catch(error){
+        console.log(error)
+        res.json({success: false, message: error.message})
+    }
    
     
 }
 
 
 const removeProduct = async (req, res) =>{
+
+    try{
+        await productModel.findByIdAndDelete(req.body.id)
+        res.json({success:true, message:'product removed'})
+    }
+    catch(error){
+        console.log(error)
+        res.json({success: false, message: error.message})
+    }
     
 }
 
 
-const singleProduct = async (req, res) =>{
-    
-}
+const singleProduct = async (req, res) => {
+    try {
+        // Extract the product ID from the request parameters
+        const { id } = req.body;
 
-export {addProduct, listProduct, removeProduct, singleProduct}
+        // Find the product by ID
+        const product = await productModel.findById(id);
+
+        // Check if the product exists
+        if (!product) {
+            return res.status(404).json({ success: false, message: 'Product not found' });
+        }
+
+        // Respond with the product data
+        res.json({ success: true, data: product });
+    } catch (error) {
+        console.log(error);
+        // Return a server error response with status 500
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+const adminLogin = async (req, res) => {
+    try {
+        const { email, password } = req.body;
+
+        // Check if the credentials match the admin credentials stored in environment variables
+        if (email === process.env.ADMIN_EMAIL && password === process.env.ADMIN_PASSWORD) {
+            // Sign a JWT token using the admin email (or any other payload)
+            const token = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+            // Return success with the token
+            return res.json({
+                success: true,
+                message: "Login successful",
+                token
+            });
+        }
+
+        // If credentials don't match, return an invalid credentials message
+        res.json({ success: false, message: "Invalid Credentials" });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+
+export {addProduct, listProduct, removeProduct, singleProduct, adminLogin}
